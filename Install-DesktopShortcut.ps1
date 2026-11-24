@@ -13,20 +13,32 @@ $ErrorActionPreference = 'Stop'
 $RepoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $VbsPath = Join-Path $RepoRoot 'Launch-Cockpit.vbs'
 $DesktopDir = [Environment]::GetFolderPath('Desktop')
-$LnkPath = Join-Path $DesktopDir "$ShortcutName.lnk"
+$StartMenuDir = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs'
+$Targets = @(
+    (Join-Path $DesktopDir "$ShortcutName.lnk"),
+    (Join-Path $StartMenuDir "$ShortcutName.lnk")
+)
 
-$ws = New-Object -ComObject WScript.Shell
-$sc = $ws.CreateShortcut($LnkPath)
-$sc.TargetPath = "$env:SystemRoot\System32\wscript.exe"
-$sc.Arguments = "`"$VbsPath`""
-$sc.WorkingDirectory = $RepoRoot
-$sc.Description = 'AI Multi Cockpit - Antigravity & Codex Multi-Account Quota Dashboard'
-
+$icoPath = Join-Path $RepoRoot 'assets\cockpit.ico'
 $edgeExe = "$env:ProgramFiles (x86)\Microsoft\Edge\Application\msedge.exe"
 if (-not (Test-Path -LiteralPath $edgeExe)) { $edgeExe = "$env:ProgramFiles\Microsoft\Edge\Application\msedge.exe" }
-if (Test-Path -LiteralPath $edgeExe) {
-    $sc.IconLocation = "$edgeExe,0"
-}
-$sc.Save()
 
-Write-Host "[OK] Created desktop shortcut: $LnkPath" -ForegroundColor Green
+$ws = New-Object -ComObject WScript.Shell
+foreach ($LnkPath in $Targets) {
+    $parent = Split-Path -Parent $LnkPath
+    if (-not (Test-Path -LiteralPath $parent)) {
+        New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    }
+    $sc = $ws.CreateShortcut($LnkPath)
+    $sc.TargetPath = "$env:SystemRoot\System32\wscript.exe"
+    $sc.Arguments = "`"$VbsPath`""
+    $sc.WorkingDirectory = $RepoRoot
+    $sc.Description = 'AI Multi Cockpit - Antigravity & Codex Multi-Account Quota Dashboard'
+    if (Test-Path -LiteralPath $icoPath) {
+        $sc.IconLocation = "$icoPath,0"
+    } elseif (Test-Path -LiteralPath $edgeExe) {
+        $sc.IconLocation = "$edgeExe,0"
+    }
+    $sc.Save()
+    Write-Host "[OK] Created shortcut: $LnkPath" -ForegroundColor Green
+}

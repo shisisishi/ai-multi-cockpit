@@ -29,8 +29,8 @@ function Test-CockpitAlive([string]$Url) {
 
 function Find-PythonExe {
     foreach ($name in @('pythonw.exe', 'python.exe', 'py.exe')) {
-        $cmd = Get-Command $name -ErrorAction SilentlyContinue
-        if ($cmd) { return $cmd.Source }
+        $cmds = @(Get-Command $name -All -ErrorAction SilentlyContinue | Where-Object { $_.Source -and $_.Source -notlike '*\WindowsApps\*' })
+        if ($cmds.Count -gt 0) { return $cmds[0].Source }
     }
     throw "Python 3 was not found in PATH. Please install Python 3.10+ to run AI Multi Cockpit."
 }

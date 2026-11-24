@@ -34,7 +34,8 @@ function safeCountProjects(dirPath) {
     for (const f of readdirSync(dirPath)) {
       if (!f.endsWith('.json')) continue;
       try {
-        const obj = JSON.parse(readFileSync(join(dirPath, f), 'utf8'));
+        const raw = readFileSync(join(dirPath, f), 'utf8').replace(/^\uFEFF/, '');
+        const obj = JSON.parse(raw);
         if (obj && !obj.sidecar) cnt += 1;
       } catch {}
     }
