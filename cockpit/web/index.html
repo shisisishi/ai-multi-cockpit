@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Multi Cockpit — Multi-Account Quota & Launcher</title>
+  <meta name="cockpit-token" content="__COCKPIT_TOKEN__" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Header -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.8" opacity="0.45"/>
+            <path d="M12 4.5A7.5 7.5 0 0 1 19.5 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="2.6" fill="currentColor"/>
+            <path d="M12 12L16.5 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title">AI Multi Cockpit <span class="ver-tag" id="verTag">v1.0.0</span></div>
+          <div class="brand-sub" data-i18n="subtitle">Antigravity &amp; Codex 多账号并发控制台</div>
+        </div>
+      </div>
+
+      <nav class="filter-tabs" role="tablist">
+        <button class="tab-btn active" data-filter="all" data-i18n="tabAll">全部</button>
+        <button class="tab-btn" data-filter="antigravity">Antigravity</button>
+        <button class="tab-btn" data-filter="codex">Codex</button>
+      </nav>
+
+      <div class="topbar-actions">
+        <button class="btn btn-primary" id="btnAddCodex" title="Add Codex Profile">
+          <span>＋</span> <span data-i18n="addCodex">新增 Codex 账号</span>
+        </button>
+        <button class="btn btn-ghost" id="btnRefreshQuotas" title="Refresh Live Quotas">
+          <span class="spin-icon" id="refreshIcon">↻</span> <span data-i18n="refreshQuota">刷新额度</span>
+        </button>
+        <button class="btn btn-icon" id="btnPrivacy" title="Toggle Privacy Blur">👁</button>
+        <button class="btn btn-icon" id="btnLang" title="Switch Language">EN</button>
+        <button class="btn btn-icon" id="btnTheme" title="Toggle Theme">☀</button>
+      </div>
+    </header>
+
+    <!-- KPI Overview Strip -->
+    <section class="kpi-grid" id="kpiGrid">
+      <div class="kpi-card">
+        <div class="kpi-label" data-i18n="kpiAccounts">已配置账号</div>
+        <div class="kpi-value" id="kpiTotal">--</div>
+        <div class="kpi-foot" id="kpiBreakdown">Antigravity -- · Codex --</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label" data-i18n="kpiRunning">正在运行</div>
+        <div class="kpi-value accent-green" id="kpiRunning">--</div>
+        <div class="kpi-foot" id="kpiLastCheck">--</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label" data-i18n="kpiAlerts">低额度预警 (&le;20%)</div>
+        <div class="kpi-value" id="kpiAlerts">0</div>
+        <div class="kpi-foot" data-i18n="kpiAlertsSub">5h / 周额度实时追踪</div>
+      </div>
+      <div class="kpi-card kpi-sync">
+        <div class="kpi-row-top">
+          <div class="kpi-label" data-i18n="kpiSync">Antigravity 同步池</div>
+          <button class="btn-mini" id="btnSyncAgy" data-i18n="syncNow">立即同步</button>
+        </div>
+        <div class="kpi-value kpi-value-sm" id="kpiSyncVal">--</div>
+        <div class="kpi-foot" id="kpiSyncFoot">--</div>
+      </div>
+    </section>
+
+    <!-- Antigravity Section -->
+    <section class="tool-section" id="sectionAntigravity">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="tool-dot dot-agy"></span>
+          <h2>Antigravity</h2>
+          <span class="count-pill" id="agyCountPill">0</span>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-sm btn-ghost" id="btnInstallBridge" data-i18n="installBridge">安装/同步额度桥接插件</button>
+          <button class="btn btn-sm btn-ghost" id="btnSyncAgy2" data-i18n="syncNow">立即同步项目与对话</button>
+        </div>
+      </div>
+      <div class="cards-grid" id="agyCards"></div>
+    </section>
+
+    <!-- Codex Section -->
+    <section class="tool-section" id="sectionCodex">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="tool-dot dot-codex"></span>
+          <h2>OpenAI Codex <span class="hint-tag">Desktop &amp; CLI</span></h2>
+          <span class="count-pill" id="codexCountPill">0</span>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-sm btn-ghost" id="btnSyncCodexShared" data-i18n="syncCodexShared">同步共享 Skills/配置</button>
+          <button class="btn btn-sm btn-primary-soft" id="btnAddCodex2" data-i18n="addCodex">＋ 新增 Codex 账号</button>
+        </div>
+      </div>
+      <div class="cards-grid" id="codexCards"></div>
+    </section>
+  </div>
+
+  <!-- Add Codex Profile Modal -->
+  <div class="modal-backdrop hidden" id="modalAddCodex">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 data-i18n="modalAddTitle">新增独立 Codex 账号配置</h3>
+        <button class="btn-close" data-close="modalAddCodex">✕</button>
+      </div>
+      <form id="formAddCodex" class="modal-body">
+        <div class="field">
+          <label data-i18n="fieldProfileId">配置 ID（字母/数字，如 acc2、work）</label>
+          <input type="text" name="name" required pattern="[A-Za-z0-9][A-Za-z0-9._-]{0,31}" placeholder="acc2" />
+        </div>
+        <div class="field">
+          <label data-i18n="fieldLabel">显示备注名称</label>
+          <input type="text" name="label" placeholder="Codex - 账号2 (Plus)" />
+        </div>
+        <div class="field">
+          <label data-i18n="fieldProxy">专属代理（可选，留空继承系统）</label>
+          <input type="text" name="proxy" placeholder="http://127.0.0.1:7890" />
+        </div>
+        <div class="check-group">
+          <label class="check-item"><input type="checkbox" name="shareConfig" checked /> <span data-i18n="optShareConfig">复制默认 config.toml</span></label>
+          <label class="check-item"><input type="checkbox" name="shareSkills" checked /> <span data-i18n="optShareSkills">同步默认 skills 目录</span></label>
+          <label class="check-item"><input type="checkbox" name="shareAgentsMd" checked /> <span data-i18n="optShareAgents">复制默认 AGENTS.md</span></label>
+          <label class="check-item"><input type="checkbox" name="createShortcut" checked /> <span data-i18n="optShortcut">自动创建桌面快捷方式</span></label>
+          <label class="check-item"><input type="checkbox" name="openLogin" checked /> <span data-i18n="optLogin">创建后立即弹出官方登录终端 (codex login)</span></label>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-ghost" data-close="modalAddCodex" data-i18n="cancel">取消</button>
+          <button type="submit" class="btn btn-primary" data-i18n="create">创建配置</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Alias / Note Modal -->
+  <div class="modal-backdrop hidden" id="modalEditMeta">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 data-i18n="modalEditTitle">编辑账号备注</h3>
+        <button class="btn-close" data-close="modalEditMeta">✕</button>
+      </div>
+      <form id="formEditMeta" class="modal-body">
+        <input type="hidden" name="id" />
+        <div class="field">
+          <label data-i18n="fieldLabel">显示名称</label>
+          <input type="text" name="alias" required />
+        </div>
+        <div class="field">
+          <label data-i18n="fieldNote">备忘标签（如用途 / 续费日）</label>
+          <input type="text" name="note" placeholder="主力开发 / 团队账号" />
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-ghost" data-close="modalEditMeta" data-i18n="cancel">取消</button>
+          <button type="submit" class="btn btn-primary" data-i18n="save">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toasts"></div>
+  <script src="/app.js"></script>
+</body>
+</html>

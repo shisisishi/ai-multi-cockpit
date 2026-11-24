@@ -1,0 +1,10 @@
+{
+  "command": "node",
+  "args": [
+    "server.mjs"
+  ],
+  "description": "Exports non-secret Antigravity quota summaries to local AI Multi Cockpit telemetry snapshots",
+  "display_name": "ai-multi-cockpit-bridge",
+  "has_web_ui": false,
+  "restart_policy": "always"
+}

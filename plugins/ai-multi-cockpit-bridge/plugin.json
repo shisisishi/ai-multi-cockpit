@@ -1,0 +1,7 @@
+{
+  "name": "ai-multi-cockpit-bridge",
+  "displayName": "AI Multi Cockpit Telemetry Bridge",
+  "version": "1.0.0",
+  "description": "Sanctioned read-only Antigravity sidecar plugin that exports non-secret model pool quota summaries for AI Multi Cockpit.",
+  "author": "AI Multi Cockpit"
+}

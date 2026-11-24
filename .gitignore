@@ -1,0 +1,15 @@
+# Local runtime state & secrets
+.env
+*.local.json
+*.dpapi
+auth.json
+__pycache__/
+*.pyc
+.pytest_cache/
+dist/
+*.zip
+telemetry/
+data/
+logs/
+.DS_Store
+Thumbs.db
